@@ -62,6 +62,7 @@ class Provider extends AbstractProvider implements SocialiteProvider
      */
     protected $request;
 
+    
     /**
      * The received SAML2 message's context.
      *
