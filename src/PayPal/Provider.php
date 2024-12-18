@@ -18,14 +18,29 @@ class Provider extends AbstractProvider
 
     protected $scopeSeparator = ' ';
 
+    protected function useSandbox(): bool
+    {
+        return config('services.paypal.sandbox', false);
+    }
+
+    protected function getBaseUrl(): string
+    {
+        return $this->useSandbox() ? 'sandbox': 'www';
+    }
+
+    protected function getBaseApiUrl(): string
+    {
+        return $this->useSandbox() ? 'api-m.sandbox': 'api-m';
+    }
+
     protected function getAuthUrl($state): string
     {
-        return $this->buildAuthUrlFromBase('https://www.paypal.com/signin/authorize', $state);
+        return $this->buildAuthUrlFromBase('https://'.$this->getBaseUrl().'.paypal.com/signin/authorize', $state);
     }
 
     protected function getTokenUrl(): string
     {
-        return 'https://api-m.paypal.com/v1/oauth2/token';
+        return 'https://'.$this->getBaseApiUrl().'.paypal.com/v1/oauth2/token';
     }
 
     /**
@@ -33,7 +48,7 @@ class Provider extends AbstractProvider
      */
     protected function getUserByToken($token)
     {
-        $response = $this->getHttpClient()->get('https://api-m.paypal.com/v1/identity/oauth2/userinfo', [
+        $response = $this->getHttpClient()->get('https://'.$this->getBaseApiUrl().'.paypal.com/v1/identity/oauth2/userinfo', [
             RequestOptions::HEADERS => [
                 'Authorization' => 'Bearer '.$token,
             ],
@@ -51,7 +66,7 @@ class Provider extends AbstractProvider
     protected function mapUserToObject(array $user)
     {
         return (new User)->setRaw($user)->map([
-            'id'       => str_replace('https://www.paypal.com/webapps/auth/identity/user/', '', $user['user_id']),
+            'id'       => str_replace('https://'.$this->getBaseUrl().'.paypal.com/webapps/auth/identity/user/', '', $user['user_id']),
             'nickname' => null,
             'name'     => $user['name'] ?? null,
             'email'    => collect($user['emails'] ?? [])->firstWhere('primary')['value'] ?? null,

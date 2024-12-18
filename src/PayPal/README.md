@@ -15,8 +15,13 @@ Please see the [Base Installation Guide](https://socialiteproviders.com/usage/),
   'client_id' => env('PAYPAL_CLIENT_ID'),  
   'client_secret' => env('PAYPAL_CLIENT_SECRET'),  
   'redirect' => env('PAYPAL_REDIRECT_URI') 
+  'sandbox' => false,
 ],
 ```
+
+#### Sandbox
+
+The sandbox boolean is used to target either production (false - default), or PayPal sandbox (true) endpoints
 
 ### Add provider event listener
 
